@@ -1,0 +1,31 @@
+{
+  "name": "injector-js",
+  "title": "InjectorJS",
+  "version": "0.0.0",
+  "description": "Dependency Injection for JavaScript",
+  "author": {
+    "name":  "Aleksey Podskrebyshev (Alex Pods)",
+    "email": "aleksey.podskrebyshev@gmail.com",
+    "url":   "http://alexpods.com"
+  },
+  "keywords": [
+      "dependency",
+      "injection",
+      "di",
+      "ioc",
+      "container",
+      "service",
+      "inject"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url":  "http://github.com/alexpods/InjectorJS.git"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-uglify": "~0.2.4"
+  },
+  "readmeFilename": "README.md"
+}

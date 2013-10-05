@@ -1,0 +1,13 @@
+{
+    "name": "InjectorJS",
+    "version": "0.0.0",
+    "ignore": [
+        "node_modules",
+        "Gruntfile.js",
+        "package.json",
+        "bower.json"
+    ],
+    "dependencies": {
+        "ClazzJS":    "~0.2.0"
+    }
+}
