@@ -1,2 +1,40 @@
-;(function(global, undefined) {
+;(function (global, name, dependencies, factory) {
+    // AMD integration
+    if (typeof define === 'function' && define.amd) {
+        define(name, dependencies, factory);
+    }
+    // CommonJS integration
+    else if (typeof exports === "object" && exports) {
+        for (var i = 0, ii = dependencies.length; i < ii; ++i) {
+            var dependency = dependencies[i];
+            if (typeof dependency === 'string') {
+                dependency = dependency.replace(/([A-Z]+)/g, function($1) { return '-'+$1.toLowerCase(); }).replace(/^-/, '');
+                dependencies[i] = require(dependency);
+            }
+        }
+        var module = factory.apply(global, dependencies);
 
+        for (var property in module) {
+            exports[property] = module[property];
+        }
+    }
+    // Just global variable
+    else {
+        for (var i = 0, ii = dependencies.length; i < ii; ++i) {
+            var dependency = dependencies[i];
+            if (typeof dependency === 'string') {
+                if (!(dependency in global)) {
+                    throw new Error('"' + name + '" dependent on non exited module "' + dependency + '"!');
+                }
+                dependencies[i] = global[dependency];
+            }
+        }
+        global[name] = factory.apply(global, dependencies);
+    }
+}((new Function('return this'))(), 'InjectorJS', ['ClazzJS'], function (ClazzJS, undefined) {
+
+    var namespace = ClazzJS.namespace;
+    var clazz     = ClazzJS.clazz;
+    var meta      = ClazzJS.meta;
+
+    namespace('InjectorJS', function(clazz, namespace) {

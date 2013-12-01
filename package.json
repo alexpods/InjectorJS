@@ -1,8 +1,8 @@
 {
   "name": "injector-js",
   "title": "InjectorJS",
-  "version": "0.0.0",
-  "description": "Dependency Injection for JavaScript",
+  "version": "0.1.0",
+  "description": "IoC container for JavaScript",
   "author": {
     "name":  "Aleksey Podskrebyshev (Alex Pods)",
     "email": "aleksey.podskrebyshev@gmail.com",
@@ -15,12 +15,17 @@
       "ioc",
       "container",
       "service",
-      "inject"
+      "inject",
+      "injector",
+      "dependency injection"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url":  "http://github.com/alexpods/InjectorJS.git"
+  },
+  "dependencies": {
+    "clazz-js": "~0.3.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

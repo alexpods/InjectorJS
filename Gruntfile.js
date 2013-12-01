@@ -4,6 +4,7 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-jsbeautifier');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON("package.json"),
@@ -12,9 +13,10 @@ module.exports = function(grunt) {
                 dest: "dist/<%= pkg.title %>.js",
                 src: [
                     "src/.prefix",
-
-                    "src/Injector.js",
-
+                    "src/*.js",
+                    "src/TypeFactories/.prefix",
+                    "src/TypeFactories/*.js",
+                    "src/TypeFactories/.suffix",
                     "src/.build",
                     "src/.suffix"
                 ]
@@ -34,8 +36,13 @@ module.exports = function(grunt) {
                 dest: "dist/<%= pkg.title %>.min.js",
                 src:  "<%= concat.dev.dest %>"
             }
+        },
+        jsbeautifier: {
+            dev: {
+                src:  ["<%= concat.dev.dest %>"]
+            }
         }
     })
 
-    grunt.registerTask('default', ['concat', 'uglify']);
+    grunt.registerTask('default', ['concat', 'uglify', 'jsbeautifier']);
 };

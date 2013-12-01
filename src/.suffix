@@ -1,2 +1,41 @@
 
-})(this);
+    });
+
+
+    var Injector = clazz('/InjectorJS/Injector');
+    var ParameterProcessor = clazz('/InjectorJS/ParameterProcessor');
+
+    var injector = Injector.create();
+    var parameterProcessor = ParameterProcessor.create();
+
+    var AbstractTypeFactory = clazz('/InjectorJS/TypeFactories/Abstract', [parameterProcessor]);
+
+    var ParameterTypeFactory = clazz('/InjectorJS/TypeFactories/Parameter', AbstractTypeFactory);
+    var ClazzTypeFactory = clazz('/InjectorJS/TypeFactories/Clazz', AbstractTypeFactory, [clazz, injector]);
+    var ServiceTypeFactory = clazz('/InjectorJS/TypeFactories/Service', AbstractTypeFactory, [injector]);
+
+    var parameterTypeFactory = ParameterTypeFactory.create();
+    var clazzTypeFactory = ClazzTypeFactory.create();
+    var serviceTypeFactory = ServiceTypeFactory.create();
+
+    injector
+        .setTypeFactory(parameterTypeFactory.getName(), parameterTypeFactory)
+        .setTypeFactory(clazzTypeFactory.getName(),   clazzTypeFactory)
+        .setTypeFactory(serviceTypeFactory.getName(), serviceTypeFactory)
+        .setDefaultType(parameterTypeFactory.getName());
+
+    return {
+        TypeFactory: {
+            Abstract:   AbstractTypeFactory,
+            Parameter:  ParameterTypeFactory,
+            Clazz:      ClazzTypeFactory,
+            Service:    ServiceTypeFactory
+        },
+        Injector:            Injector,
+        ParameterProcessor: ParameterProcessor,
+
+        injector:           injector,
+        parameterProcessor: parameterProcessor
+    };
+
+}));
