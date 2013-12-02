@@ -8,7 +8,7 @@ clazz('ParameterProcessor', function(self) {
             }
         },
         methods: {
-            process: function(value, meta, name, object) {
+            process: function(value, meta, name) {
 
                 var options = ['converters', 'constraints', 'default', 'type'];
 
@@ -22,14 +22,14 @@ clazz('ParameterProcessor', function(self) {
                         case 'type':
                         case 'constraints':
                         case 'converters':
-                            value = this.const('PROCESSORS')(options[i])().apply(value, meta[options[i]], name, object);
+                            value = this.const('PROCESSORS')(options[i])().apply(value, meta[options[i]], name);
                             break;
 
                         case 'default':
                             var defaultValue = meta[options[i]];
 
                             if (_.isFunction(defaultValue)) {
-                                defaultValue = defaultValue.call(object);
+                                defaultValue = defaultValue.call();
                             }
                             if (_.isUndefined(value) || _.isNull(value)) {
                                 value = defaultValue;

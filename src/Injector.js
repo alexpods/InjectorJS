@@ -1,75 +1,91 @@
 clazz('Injector', function(self) {
     return {
         properties: {
-            defaultType: {
-                type: ['string'],
+            defaultFactory: {
+                type: ['object'],
                 constraints: {
-                    typeFactoryExists: function(type) {
-                        return this.hasTypeFactory(type);
+                    exists: function(type) {
+                        return this.hasFactory(type);
                     }
                 }
             },
-            typeFactory: {
-                type: ['hash', { element: ['object', { instanceof: 'TypeFactories/Abstract' }] }],
+            factory: {
+                type: ['hash', { element: ['object', { instanceof: 'Factories/Abstract' }] }],
                 default: {}
             },
-            createdObject: {
+            object: {
                 type: ['hash'],
                 default: {}
             },
-            objectFactory: {
+            objectCreator: {
                 type: ['hash'],
                 default: {}
+            },
+            getter: {
+                type: ['function']
             }
         },
         methods: {
             has: function(name) {
-                return this.hasCreatedObject(name) || this.hasObjectFactory(name);
+                return this.hasObject(name) || this.hasObjectCreator(name);
             },
             get: function(name) {
-                if (!this.hasCreatedObject(name)) {
-                    if (!this.hasObjectFactory(name)) {
-                        throw new Error('Factory for object "' + name + "' does not exists!'");
+                if (!this.hasObject(name)) {
+                    if (!this.hasObjectCreator(name)) {
+                        throw new Error('Factory method for object "' + name + "' does not exists!'");
                     }
-                    this.setCreatedObject(name, this.getObjectFactory(name).call());
-                    this.removeObjectFactory(name);
+                    this.setObject(name, this.getObjectCreator(name).call());
+                    this.removeObjectCreator(name);
                 }
 
-                return this.getCreatedObject(name);
+                return this.getObject(name);
             },
-            set: function(name, type, params) {
-                if (_.isObject(name)) {
-                    var objects = name;
-                    for (name in objects) {
+            set: function(/* (name, type, factory) | (types) */) {
+                if (_.isObject(arguments[0])) {
+                    var factories = arguments[0];
 
-                        params = objects[name];
-                        type   = params.type;
-                        delete params.type;
-
-                        this.setObjectFactory(name, this.createFactoryMethod(type, params));
+                    for (var factory in factories) {
+                        for (var name in factories[factory]) {
+                            this.setObjectCreator(name, this.createObjectCreator(factory, factories[factory][name]));
+                        }
                     }
                 }
                 else {
-                    this.setObjectFactory(name, this.createFactoryMethod(type, params));
+                    this.setObjectCreator(arguments[0], this.createObjectCreator(arguments[1], arguments[2]));
                 }
                 return this;
             },
 
-            createFactoryMethod: function(type, params) {
+            getGetterMethod: function() {
+                if (!this.hasGetter()) {
+                    var that = this;
 
-                if (_.isUndefined(params)) {
-                    params = type;
-                    type   = undefined;
+                    this.setGetter(function(name) {
+                        return that.get(name);
+                    })
                 }
 
-                if (_.isUndefined(type)) {
-                    if (!this.hasDefaultType()) {
-                        throw new Error('You must specify type for object "' + name + '"!');
-                    }
-                    type = this.getDefaultType();
+                return this.getGetter();
+            },
+
+            createObjectCreator: function(factoryName, factoryMethod) {
+
+                if (_.isUndefined(factoryName)) {
+                    factoryMethod = factoryName;
+                    factoryName   = undefined;
                 }
 
-                return this.getTypeFactory(type).getFactoryMethod(params);
+                var that    = this;
+                var factory = !_.isUndefined(factoryName) ? this.getFactory(factoryName) : this.getDefaultFactory();
+
+                return function() {
+
+                    var params  = _.isFunction(factoryMethod)
+                        ? factoryMethod.call(factory, that.getGetterMethod())
+                        : factoryMethod;
+
+                    return factory.create(params);
+                }
             }
         }
     }

@@ -14,9 +14,9 @@ module.exports = function(grunt) {
                 src: [
                     "src/.prefix",
                     "src/*.js",
-                    "src/TypeFactories/.prefix",
-                    "src/TypeFactories/*.js",
-                    "src/TypeFactories/.suffix",
+                    "src/Factories/.prefix",
+                    "src/Factories/*.js",
+                    "src/Factories/.suffix",
                     "src/.build",
                     "src/.suffix"
                 ]

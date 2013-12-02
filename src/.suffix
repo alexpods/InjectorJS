@@ -8,30 +8,30 @@
     var injector = Injector.create();
     var parameterProcessor = ParameterProcessor.create();
 
-    var AbstractTypeFactory = clazz('/InjectorJS/TypeFactories/Abstract', [parameterProcessor]);
+    var AbstractFactory = clazz('/InjectorJS/Factories/Abstract', [parameterProcessor]);
 
-    var ParameterTypeFactory = clazz('/InjectorJS/TypeFactories/Parameter', AbstractTypeFactory);
-    var ClazzTypeFactory = clazz('/InjectorJS/TypeFactories/Clazz', AbstractTypeFactory, [clazz, injector]);
-    var ServiceTypeFactory = clazz('/InjectorJS/TypeFactories/Service', AbstractTypeFactory, [injector]);
+    var ParameterFactory = clazz('/InjectorJS/Factories/Parameter', AbstractFactory);
+    var ClazzFactory     = clazz('/InjectorJS/Factories/Clazz', AbstractFactory, [clazz]);
+    var ServiceFactory   = clazz('/InjectorJS/Factories/Service', AbstractFactory);
 
-    var parameterTypeFactory = ParameterTypeFactory.create();
-    var clazzTypeFactory = ClazzTypeFactory.create();
-    var serviceTypeFactory = ServiceTypeFactory.create();
+    var parameterFactory = ParameterFactory.create();
+    var clazzFactory     = ClazzFactory.create();
+    var serviceFactory   = ServiceFactory.create();
 
     injector
-        .setTypeFactory(parameterTypeFactory.getName(), parameterTypeFactory)
-        .setTypeFactory(clazzTypeFactory.getName(),   clazzTypeFactory)
-        .setTypeFactory(serviceTypeFactory.getName(), serviceTypeFactory)
-        .setDefaultType(parameterTypeFactory.getName());
+        .setFactory(parameterFactory.getName(), parameterFactory)
+        .setFactory(clazzFactory.getName(),   clazzFactory)
+        .setFactory(serviceFactory.getName(), serviceFactory)
+        .setDefaultFactory(parameterFactory.getName());
 
     return {
-        TypeFactory: {
-            Abstract:   AbstractTypeFactory,
-            Parameter:  ParameterTypeFactory,
-            Clazz:      ClazzTypeFactory,
-            Service:    ServiceTypeFactory
+        Factory: {
+            Abstract:   AbstractFactory,
+            Parameter:  ParameterFactory,
+            Clazz:      ClazzFactory,
+            Service:    ServiceFactory
         },
-        Injector:            Injector,
+        Injector:           Injector,
         ParameterProcessor: ParameterProcessor,
 
         injector:           injector,

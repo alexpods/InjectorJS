@@ -1,0 +1,1 @@
+namespace('Factories', function(clazz) {
