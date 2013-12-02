@@ -9,18 +9,24 @@ clazz('ParameterProcessor', function(self) {
         },
         methods: {
             process: function(value, meta, name, object) {
-                for (var option in meta) {
 
-                    switch (option) {
+                var options = ['converters', 'constraints', 'default', 'type'];
+
+                for (var i = 0, ii = options.length; i < ii; ++i) {
+                    if (!(options[i] in meta)) {
+                        continue;
+                    }
+
+                    switch (options[i]) {
 
                         case 'type':
                         case 'constraints':
                         case 'converters':
-                            value = this.const('PROCESSORS')(option)().apply(value, meta[option], name, object);
+                            value = this.const('PROCESSORS')(options[i])().apply(value, meta[options[i]], name, object);
                             break;
 
                         case 'default':
-                            var defaultValue = meta[option];
+                            var defaultValue = meta[options[i]];
 
                             if (_.isFunction(defaultValue)) {
                                 defaultValue = defaultValue.call(object);
