@@ -42,7 +42,7 @@
 
     namespace('InjectorJS', function(clazz, namespace) {
 
-        clazz('Injector', function() {
+        clazz('Injector', function(self) {
             return {
                 properties: {
                     defaultType: {
@@ -121,7 +121,7 @@
                 }
             }
         });
-        clazz('ParameterProcessor', function() {
+        clazz('ParameterProcessor', function(self) {
             return {
                 constants: {
                     PROCESSORS: {
@@ -160,7 +160,7 @@
             }
         });
         namespace('TypeFactories', function(clazz) {
-            clazz('Abstract', function(parameterProcessor) {
+            clazz('Abstract', function(self, parameterProcessor) {
                 return {
                     methods: {
                         getName: function() {
@@ -194,7 +194,7 @@
                     }
                 };
             });
-            clazz('Clazz', 'Abstract', function(clazz, injector) {
+            clazz('Clazz', 'Abstract', function(slef, clazz, injector) {
                 return {
                     methods: {
                         getName: function() {
@@ -236,7 +236,7 @@
                     }
                 }
             });
-            clazz('Parameter', 'Abstract', function() {
+            clazz('Parameter', 'Abstract', function(self) {
                 return {
                     methods: {
                         getName: function() {
@@ -254,7 +254,7 @@
                     }
                 };
             });
-            clazz('Service', 'Abstract', function(injector) {
+            clazz('Service', 'Abstract', function(self, injector) {
                 return {
                     methods: {
                         getName: function() {

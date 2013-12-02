@@ -1,4 +1,4 @@
-clazz('Clazz', 'Abstract', function(clazz, injector) {
+clazz('Clazz', 'Abstract', function(slef, clazz, injector) {
     return {
         methods: {
             getName: function() {

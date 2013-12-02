@@ -1,4 +1,4 @@
-clazz('Injector', function() {
+clazz('Injector', function(self) {
     return {
         properties: {
             defaultType: {

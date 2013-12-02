@@ -1,4 +1,4 @@
-clazz('Service', 'Abstract', function(injector) {
+clazz('Service', 'Abstract', function(self, injector) {
     return {
         methods: {
             getName: function() {

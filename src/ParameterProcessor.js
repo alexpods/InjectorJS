@@ -1,4 +1,4 @@
-clazz('ParameterProcessor', function() {
+clazz('ParameterProcessor', function(self) {
     return {
         constants: {
             PROCESSORS: {

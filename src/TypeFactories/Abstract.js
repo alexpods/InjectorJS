@@ -1,4 +1,4 @@
-clazz('Abstract', function(parameterProcessor) {
+clazz('Abstract', function(self, parameterProcessor) {
     return {
         methods: {
             getName: function() {
