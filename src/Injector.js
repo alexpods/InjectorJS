@@ -2,7 +2,7 @@ clazz('Injector', function(self) {
     return {
         properties: {
             defaultFactory: {
-                type: ['object'],
+                type: ['object', { instanceOf: 'Factories/Abstract' }],
                 constraints: {
                     exists: function(factory) {
                         return this.hasFactory(factory.getName());
@@ -10,7 +10,7 @@ clazz('Injector', function(self) {
                 }
             },
             factory: {
-                type: ['hash', { element: ['object', { instanceof: 'Factories/Abstract' }] }],
+                type: ['hash', { element: ['object', { instanceOf: 'Factories/Abstract' }] }],
                 default: {}
             },
             object: {

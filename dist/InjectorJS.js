@@ -46,7 +46,9 @@
             return {
                 properties: {
                     defaultFactory: {
-                        type: ['object'],
+                        type: ['object', {
+                            instanceOf: 'Factories/Abstract'
+                        }],
                         constraints: {
                             exists: function(factory) {
                                 return this.hasFactory(factory.getName());
@@ -56,7 +58,7 @@
                     factory: {
                         type: ['hash', {
                             element: ['object', {
-                                instanceof: 'Factories/Abstract'
+                                instanceOf: 'Factories/Abstract'
                             }]
                         }],
                         default: {}
