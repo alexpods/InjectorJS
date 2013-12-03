@@ -22,7 +22,7 @@
         .setFactory(parameterFactory.getName(), parameterFactory)
         .setFactory(clazzFactory.getName(),   clazzFactory)
         .setFactory(serviceFactory.getName(), serviceFactory)
-        .setDefaultFactory(parameterFactory.getName());
+        .setDefaultFactory(parameterFactory);
 
     return {
         Factory: {

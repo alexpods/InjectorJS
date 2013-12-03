@@ -4,8 +4,8 @@ clazz('Injector', function(self) {
             defaultFactory: {
                 type: ['object'],
                 constraints: {
-                    exists: function(type) {
-                        return this.hasFactory(type);
+                    exists: function(factory) {
+                        return this.hasFactory(factory.getName());
                     }
                 }
             },

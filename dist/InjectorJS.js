@@ -48,8 +48,8 @@
                     defaultFactory: {
                         type: ['object'],
                         constraints: {
-                            exists: function(type) {
-                                return this.hasFactory(type);
+                            exists: function(factory) {
+                                return this.hasFactory(factory.getName());
                             }
                         }
                     },
@@ -322,7 +322,7 @@
         .setFactory(parameterFactory.getName(), parameterFactory)
         .setFactory(clazzFactory.getName(), clazzFactory)
         .setFactory(serviceFactory.getName(), serviceFactory)
-        .setDefaultFactory(parameterFactory.getName());
+        .setDefaultFactory(parameterFactory);
 
     return {
         Factory: {
