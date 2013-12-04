@@ -1,7 +1,7 @@
 {
   "name": "injector-js",
   "title": "InjectorJS",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "IoC container for JavaScript",
   "author": {
     "name":  "Aleksey Podskrebyshev (Alex Pods)",
@@ -25,7 +25,7 @@
     "url":  "http://github.com/alexpods/InjectorJS.git"
   },
   "dependencies": {
-    "clazz-js": "~0.3.0"
+    "clazz-js": "~0.3.1"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
