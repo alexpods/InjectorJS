@@ -147,7 +147,7 @@
                     }
                 },
                 methods: {
-                    process: function(value, meta, name) {
+                    process: function(value, meta, name, object) {
 
                         var options = ['converters', 'constraints', 'default', 'type'];
 
@@ -161,7 +161,7 @@
                                 case 'type':
                                 case 'constraints':
                                 case 'converters':
-                                    value = this.const('PROCESSORS')(options[i])().apply(value, meta[options[i]], name);
+                                    value = this.const('PROCESSORS')(options[i])().apply(value, meta[options[i]], name, [], object);
                                     break;
 
                                 case 'default':
@@ -205,7 +205,7 @@
                                 if (!(param in paramsDefinition)) {
                                     throw new Error('Parameter "' + param + '" does not defined!');
                                 }
-                                params[param] = parameterProcessor.process(params[param], paramsDefinition[param], param);
+                                params[param] = parameterProcessor.process(params[param], paramsDefinition[param], param, this);
                             }
 
                             return params;

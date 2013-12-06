@@ -8,7 +8,7 @@ clazz('ParameterProcessor', function(self) {
             }
         },
         methods: {
-            process: function(value, meta, name) {
+            process: function(value, meta, name, object) {
 
                 var options = ['converters', 'constraints', 'default', 'type'];
 
@@ -22,7 +22,7 @@ clazz('ParameterProcessor', function(self) {
                         case 'type':
                         case 'constraints':
                         case 'converters':
-                            value = this.const('PROCESSORS')(options[i])().apply(value, meta[options[i]], name);
+                            value = this.const('PROCESSORS')(options[i])().apply(value, meta[options[i]], name, [], object);
                             break;
 
                         case 'default':

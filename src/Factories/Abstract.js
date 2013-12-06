@@ -21,7 +21,7 @@ clazz('Abstract', function(self, parameterProcessor) {
                     if (!(param in paramsDefinition)) {
                         throw new Error('Parameter "' + param + '" does not defined!');
                     }
-                    params[param] = parameterProcessor.process(params[param], paramsDefinition[param], param);
+                    params[param] = parameterProcessor.process(params[param], paramsDefinition[param], param, this);
                 }
 
                 return params;
