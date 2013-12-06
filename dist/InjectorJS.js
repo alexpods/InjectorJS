@@ -80,15 +80,15 @@
                         return this.hasObject(name) || this.hasObjectCreator(name);
                     },
                     get: function(name) {
-                        if (!this.hasObject(name)) {
-                            if (!this.hasObjectCreator(name)) {
+                        if (!this.hasObject([name])) {
+                            if (!this.hasObjectCreator([name])) {
                                 throw new Error('Factory method for object "' + name + "' does not exists!'");
                             }
-                            this.setObject(name, this.getObjectCreator(name).call());
-                            this.removeObjectCreator(name);
+                            this.setObject([name], this.getObjectCreator([name]).call());
+                            this.removeObjectCreator([name]);
                         }
 
-                        return this.getObject(name);
+                        return this.getObject([name]);
                     },
                     set: function( /* (name, type, factory) | (types) */ ) {
                         if (_.isObject(arguments[0])) {
@@ -96,11 +96,11 @@
 
                             for (var factory in factories) {
                                 for (var name in factories[factory]) {
-                                    this.setObjectCreator(name, this.createObjectCreator(factory, factories[factory][name]));
+                                    this.setObjectCreator([name], this.createObjectCreator(factory, factories[factory][name]));
                                 }
                             }
                         } else {
-                            this.setObjectCreator(arguments[0], this.createObjectCreator(arguments[1], arguments[2]));
+                            this.setObjectCreator([arguments[0]], this.createObjectCreator(arguments[1], arguments[2]));
                         }
                         return this;
                     },
