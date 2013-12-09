@@ -173,7 +173,7 @@
                                 case 'type':
                                 case 'constraints':
                                 case 'converters':
-                                    value = this.const('PROCESSORS')(options[i])().apply(value, meta[options[i]], name, [], object);
+                                    value = this.const('PROCESSORS', options[i]).apply(value, meta[options[i]], name, [], object);
                                     break;
 
                                 case 'default':
