@@ -45,8 +45,17 @@ clazz('Injector', function(self) {
                     var factories = arguments[0];
 
                     for (var factory in factories) {
-                        for (var name in factories[factory]) {
-                            this.setObjectCreator([name], this.createObjectCreator(factory, factories[factory][name]));
+
+                        var objects = factories[factory];
+
+                        if (!this.hasFactory(factory)) {
+                            objects = {};
+                            objects[factory] = factories[factory];
+                            factory = undefined;
+                        }
+
+                        for (var name in objects) {
+                            this.setObjectCreator([name], this.createObjectCreator(factory, objects[name]));
                         }
                     }
                 }
@@ -68,11 +77,13 @@ clazz('Injector', function(self) {
                 return this.getGetter();
             },
 
-            createObjectCreator: function(factoryName, factoryMethod) {
+            createObjectCreator: function(/* factoryName, factoryMethod */) {
 
-                if (_.isUndefined(factoryName)) {
-                    factoryMethod = factoryName;
-                    factoryName   = undefined;
+                if (2 === arguments.length) {
+                    var factoryMethod = arguments[1], factoryName   = arguments[0];
+                }
+                else {
+                    var factoryName   = undefined, factoryMethod = arguments[0];
                 }
 
                 var that    = this;
