@@ -1,7 +1,7 @@
 InjectorJS
 ==========
 
-InjectorJS is a simple Dependency Injection Container for JavaScript. It helps you to remove of hard-corded
+InjectorJS is a simple Dependency Injection Container for JavaScript. It helps you to remove hard-corded
 dependencies and make it possible to change them at any time.
 
 Documentation
