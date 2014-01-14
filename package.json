@@ -2,12 +2,13 @@
     "name": "injector-js",
     "title": "InjectorJS",
     "version": "0.2.0",
-    "description": "simple Dependency Injection Container for JavaScript",
+    "description": "Simple Dependency Injection Container for JavaScript",
     "author": {
         "name":  "Aleksey Podskrebyshev (Alex Pods)",
         "email": "aleksey.podskrebyshev@gmail.com",
         "url":   "http://alexpods.com"
     },
+    "main": "dist/ClazzJS.js",
     "keywords": [
         "dependency",
         "injection",
