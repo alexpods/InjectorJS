@@ -27,10 +27,10 @@ module.exports = function(grunt) {
             test: {
                 src: ["<%= concat.dev.dest %>"],
                 options: {
-                    specs:   ['test/specs/**/*.js'],
+                    specs:   ['tests/specs/**/*.js'],
                     vendor:  [
                         'node_modules/clazz-js/dist/ClazzJS.js',
-                        'test/prefix.js'
+                        'tests/prefix.js'
                     ]
                 }
             }

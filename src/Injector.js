@@ -2,11 +2,10 @@ clazz('Injector', function(self) {
     return {
         properties: {
             factory: {
-                type: ['hash', { element: ['object', { instanceOf: 'Factories/Abstract' }] }],
+                type: ['hash'],
                 default: {}
             },
             defaultFactory: {
-                type: ['object', { instanceOf: 'Factories/Abstract' }],
                 converters: {
                     fromString: function(factory) {
                         if (_.isUndefined(factory)) {
@@ -75,7 +74,10 @@ clazz('Injector', function(self) {
             },
 
             setFactory: function(factory) {
-                return this.__setPropertyValue(['factory', factory.getName()], factory);
+                if (factory && factory.__clazz && factory.__clazz.__isSubclazzOf('/InjectorJS/Factories/Abstract')) {
+                    return this.__setPropertyValue(['factory', factory.getName()], factory);
+                }
+                return this.__setPropertyValue.apply(this, ['factory'].concat(_.toArray(arguments)));
             },
 
             hasFactory: function(factory) {
@@ -149,7 +151,7 @@ clazz('Injector', function(self) {
                         ? object.call(that)
                         : object;
 
-                    return factory.create(params);
+                    return _.isFunction(factory) ? factory(params) : factory.create(params);
                 }
             }
         }
