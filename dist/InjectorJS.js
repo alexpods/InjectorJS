@@ -37,24 +37,15 @@
 }((new Function('return this'))(), 'InjectorJS', ['ClazzJS'], function(ClazzJS, undefined) {
 
     var namespace = ClazzJS.namespace;
-    var clazz = ClazzJS.clazz;
-    var meta = ClazzJS.meta;
+    var clazz = namespace('InjectorJS').get('clazz');
+    var meta = namespace('InjectorJS').get('meta');
+    var _ = ClazzJS._;
 
     namespace('InjectorJS', function(clazz, namespace) {
 
         clazz('Injector', function(self) {
             return {
                 properties: {
-                    defaultFactory: {
-                        type: ['object', {
-                            instanceOf: 'Factories/Abstract'
-                        }],
-                        constraints: {
-                            exists: function(factory) {
-                                return this.hasFactory(factory.getName());
-                            }
-                        }
-                    },
                     factory: {
                         type: ['hash', {
                             element: ['object', {
@@ -63,85 +54,145 @@
                         }],
                         default: {}
                     },
-                    object: {
+                    defaultFactory: {
+                        type: ['object', {
+                            instanceOf: 'Factories/Abstract'
+                        }],
+                        converters: {
+                            fromString: function(factory) {
+                                if (_.isUndefined(factory)) {
+                                    factory = this.getFactory(factory);
+                                }
+                                return factory;
+                            }
+                        },
+                        constraints: {
+                            exists: function(factory) {
+                                return this.hasFactory(factory);
+                            }
+                        },
+                        default: function() {
+                            var factory = clazz('Factories/Object').create();
+
+                            if (!this.hasFactory(factory)) {
+                                this.setFactory(factory);
+                            }
+                            return factory;
+                        }
+                    },
+                    _object: {
                         type: ['hash'],
                         default: {}
                     },
-                    objectCreator: {
+                    _objectCreator: {
                         type: ['hash'],
                         default: {}
-                    },
-                    getter: {
-                        type: ['function']
                     }
                 },
                 methods: {
-                    has: function(name) {
-                        return this.hasObject(name) || this.hasObjectCreator(name);
-                    },
-                    get: function(name) {
-                        if (!this.hasObject([name])) {
-                            if (!this.hasObjectCreator([name])) {
-                                throw new Error('Factory method for object "' + name + "' does not exists!'");
-                            }
-                            this.setObject([name], this.getObjectCreator([name]).call());
-                            this.removeObjectCreator([name]);
-                        }
 
-                        return this.getObject([name]);
-                    },
-                    set: function( /* (name, type, factory) | (types) */ ) {
-                        if (_.isObject(arguments[0])) {
-                            var factories = arguments[0];
+                    set: function(name, factory, object) {
 
-                            for (var factory in factories) {
+                        var that = this;
+                        var objects = this._resolveObjects(name, factory, object);
 
-                                var objects = factories[factory];
+                        _.each(objects, function(factoryObjects, factory) {
+                            _.each(factoryObjects, function(object, name) {
+                                that._setObjectCreator([name], that._createObjectCreator(factory, object));
+                            });
+                        });
 
-                                if (!this.hasFactory(factory)) {
-                                    objects = {};
-                                    objects[factory] = factories[factory];
-                                    factory = undefined;
-                                }
-
-                                for (var name in objects) {
-                                    this.setObjectCreator([name], this.createObjectCreator(factory, objects[name]));
-                                }
-                            }
-                        } else {
-                            this.setObjectCreator([arguments[0]], this.createObjectCreator(arguments[1], arguments[2]));
-                        }
                         return this;
                     },
 
-                    getGetterMethod: function() {
-                        if (!this.hasGetter()) {
-                            var that = this;
-
-                            this.setGetter(function(name) {
-                                return that.get(name);
-                            })
-                        }
-
-                        return this.getGetter();
+                    has: function(name) {
+                        return this._hasObject([name]) || this._hasObjectCreator([name]);
                     },
 
-                    createObjectCreator: function( /* factoryName, factoryMethod */ ) {
+                    get: function(name) {
+                        this._checkObject(name);
 
-                        if (2 === arguments.length) {
-                            var factoryMethod = arguments[1],
-                                factoryName = arguments[0];
+                        if (!this._hasObject([name])) {
+                            this._setObject([name], this._getObjectCreator([name]).call())._removeObjectCreator([name]);
+                        }
+                        return this._getObject([name]);
+                    },
+
+                    remove: function(name) {
+                        this._checkObject(name);
+
+                        return (this._hasObject([name]) && this._removeObject([name])) || (this._hasObjectCreator([name]) && this._removeObjectCreator([name]));
+                    },
+
+                    setFactory: function(factory) {
+                        return this.__setPropertyValue(['factory', factory.getName()], factory);
+                    },
+
+                    hasFactory: function(factory) {
+                        var factoryName = _.isString(factory) ? factory : factory.getName();
+                        return this.__hasPropertyValue(['factory', factoryName]);
+                    },
+
+                    setDefaultFactory: function(factory) {
+                        return this.setFactory(factory);
+                    },
+
+                    _checkObject: function(name) {
+                        if (!this.has(name)) {
+                            throw new Error('Object "' + name + "' does not exists!'");
+
+                        }
+                    },
+
+                    _resolveObjects: function(name, factory, object) {
+
+                        var that = this;
+                        var objects = {};
+                        var defaultFactory = this.getDefaultFactory().getName();
+
+                        if (_.isObject(name)) {
+                            objects = name;
                         } else {
-                            var factoryName = undefined,
-                                factoryMethod = arguments[0];
+                            if (_.isUndefined(object)) {
+                                object = factory;
+                                factory = undefined;
+                            }
+
+                            if (_.isUndefined(factory)) {
+                                factory = defaultFactory;
+                            }
+
+                            objects[factory] = {};
+                            objects[factory][name] = object;
+                        }
+
+                        _.each(objects, function(factoryObjects, factory) {
+                            if (!that.hasFactory(factory)) {
+                                if (!(defaultFactory in objects)) {
+                                    objects[defaultFactory] = {};
+                                }
+
+                                objects[defaultFactory][factory] = factoryObjects;
+                                delete objects[factory];
+                            }
+                        });
+
+                        return objects;
+                    },
+
+                    _createObjectCreator: function(factoryName, object) {
+                        if (_.isUndefined(object)) {
+                            object = factoryName;
+                            factoryName = undefined;
                         }
 
                         var that = this;
-                        var factory = !_.isUndefined(factoryName) ? this.getFactory(factoryName) : this.getDefaultFactory();
 
                         return function() {
 
-                            var params = _.isFunction(factoryMethod) ? factoryMethod.call(factory, that.getGetterMethod()) : factoryMethod;
+                            var factory = !_.isUndefined(factoryName) ? that.getFactory(factoryName) : that.getDefaultFactory();
+
+                            var params = _.isFunction(object) ? object.call(that) : object;
 
                             return factory.create(params);
                         }
@@ -151,51 +202,67 @@
         });
         clazz('ParameterProcessor', function(self) {
             return {
-                constants: {
-                    PROCESSORS: {
-                        type: meta('/ClazzJS/Property/Type'),
-                        constraints: meta('/ClazzJS/Property/Constraints'),
-                        converters: meta('/ClazzJS/Property/Converters')
+                properties: {
+                    processor: {
+                        type: ['hash', {
+                            element: 'function'
+                        }],
+                        default: function() {
+                            return {
+                                type: function(paramValue, metaData, paramName, object) {
+                                    return meta('/ClazzJS/Property/Type').apply(paramValue, metaData, paramName, [], object);
+                                },
+                                constraints: function(paramValue, metaData, paramName, object) {
+                                    return meta('/ClazzJS/Property/Constraints').apply(paramValue, metaData, paramName, [], object);
+                                },
+                                converters: function(paramValue, metaData, paramName, object) {
+                                    return meta('/ClazzJS/Property/Converters').apply(paramValue, metaData, paramName, [], object);
+                                },
+                                default: function(paramValue, metaData, paramName, object) {
+                                    if (_.isUndefined(paramValue) || _.isNull(paramValue)) {
+                                        paramValue = _.isFunction(metaData) ? metaData.call(object) : metaData;
+                                    }
+                                    return paramValue;
+                                }
+                            };
+                        }
                     }
                 },
                 methods: {
-                    process: function(value, meta, name, object) {
+                    process: function(paramValue, metaData, paramName, object) {
 
-                        var options = ['converters', 'constraints', 'default', 'type'];
+                        paramName = paramName || 'unknown';
+                        object = object || this;
 
-                        for (var i = 0, ii = options.length; i < ii; ++i) {
-                            if (!(options[i] in meta)) {
-                                continue;
+                        var that = this;
+                        var processors = this.getProcessor();
+
+                        _.each(metaData, function(data, option) {
+                            if (!(option in processors)) {
+                                return;
                             }
 
-                            switch (options[i]) {
+                            paramValue = processors[option].call(that, paramValue, data, paramName, object);
+                        });
 
-                                case 'type':
-                                case 'constraints':
-                                case 'converters':
-                                    value = this.const('PROCESSORS', options[i]).apply(value, meta[options[i]], name, [], object);
-                                    break;
-
-                                case 'default':
-                                    var defaultValue = meta[options[i]];
-
-                                    if (_.isFunction(defaultValue)) {
-                                        defaultValue = defaultValue.call();
-                                    }
-                                    if (_.isUndefined(value) || _.isNull(value)) {
-                                        value = defaultValue;
-                                    }
-                                    break;
-                            }
-                        }
-                        return value;
+                        return paramValue;
                     }
                 }
             }
         });
         namespace('Factories', function(clazz) {
-            clazz('Abstract', function(self, parameterProcessor) {
+            clazz('Abstract', function(self) {
                 return {
+                    properties: {
+                        parameterProcessor: {
+                            type: ['object', {
+                                instanceOf: '/InjectorJS/ParameterProcessor'
+                            }],
+                            default: function() {
+                                return clazz('/InjectorJS/ParameterProcessor').create();
+                            }
+                        }
+                    },
                     methods: {
                         getName: function() {
                             throw new Error('You must specify type name in child clazz!');
@@ -206,39 +273,48 @@
                         createObject: function(params) {
                             throw new Error('You must realize "createObject" method in child clazz!');
                         },
-                        getParamsDefinitions: function() {
+                        getParamsDefinition: function() {
                             return {};
                         },
                         processParams: function(params) {
 
-                            var paramsDefinition = this.getParamsDefinitions();
+                            var that = this;
+                            var paramsDefinition = this.getParamsDefinition();
+                            var parameterProcessor = this.getParameterProcessor();
 
-                            for (var param in params) {
+                            _.each(params, function(value, param) {
                                 if (!(param in paramsDefinition)) {
                                     throw new Error('Parameter "' + param + '" does not defined!');
                                 }
-                                params[param] = parameterProcessor.process(params[param], paramsDefinition[param], param, this);
-                            }
+                                params[param] = parameterProcessor.process(value, paramsDefinition[param], param, that);
+                            });
 
                             return params;
                         }
                     }
                 };
             });
-            clazz('Clazz', 'Abstract', function(slef, clazz) {
+            clazz('Clazz', 'Abstract', function(slef) {
                 return {
+                    properties: {
+                        clazz: {
+                            type: 'function',
+                            default: function() {
+                                return ClazzJS.clazz;
+                            }
+                        }
+                    },
                     methods: {
                         getName: function() {
                             return 'clazz'
                         },
-                        getParamsDefinitions: function() {
+                        getParamsDefinition: function() {
                             return {
                                 name: {
-                                    type: ['string'],
-                                    required: true
+                                    type: 'string'
                                 },
                                 parent: {
-                                    type: ['function']
+                                    type: 'function'
                                 },
                                 deps: {
                                     type: ['array'],
@@ -247,16 +323,17 @@
                             }
                         },
                         createObject: function(params) {
+                            var clazz = this.getClazz();
                             return clazz(params.name, params.parent, params.deps)
                         }
                     }
                 }
             });
-            clazz('Parameter', 'Abstract', function(self) {
+            clazz('Object', 'Abstract', function(self) {
                 return {
                     methods: {
                         getName: function() {
-                            return 'parameter';
+                            return 'object';
                         },
                         create: function(value) {
                             return value;
@@ -270,11 +347,11 @@
                         getName: function() {
                             return 'service'
                         },
-                        getParamsDefinitions: function() {
+
+                        getParamsDefinition: function() {
                             return {
                                 class: {
-                                    type: ['function'],
-                                    required: true
+                                    type: ['function']
                                 },
                                 init: {
                                     type: ['array'],
@@ -282,31 +359,32 @@
                                 },
                                 call: {
                                     type: ['hash', {
-                                        element: {
-                                            type: 'array'
-                                        }
+                                        element: 'array'
                                     }],
                                     default: {}
                                 }
                             }
                         },
-                        createObject: function(params) {
-                            var service = construct(params.class, params.init);
 
-                            for (var method in params.call) {
-                                service[service].apply(service, params.call[method]);
-                            }
+                        createObject: function(params) {
+
+                            // Create '_createService' function for this purpose for parameters applying to clazz constructor.
+                            var service = this._createService(params.class, params.init);
+
+                            _.each(params.call, function(params, method) {
+                                service[method].apply(service, params);
+                            });
 
                             return service;
+                        },
 
-                            function construct(klass, params) {
-                                var K = function() {
-                                    return klass.apply(this, params);
-                                };
-                                K.prototype = klass.prototype;
+                        _createService: function(klass, params) {
+                            var K = function() {
+                                return klass.apply(this, params);
+                            };
+                            K.prototype = klass.prototype;
 
-                                return new K();
-                            }
+                            return new K();
                         }
                     }
                 };
@@ -315,36 +393,34 @@
 
     });
 
-
-    var Injector = clazz('/InjectorJS/Injector');
-    var ParameterProcessor = clazz('/InjectorJS/ParameterProcessor');
-
-    var injector = Injector.create();
+    var Injector = clazz('Injector');
+    var ParameterProcessor = clazz('ParameterProcessor');
     var parameterProcessor = ParameterProcessor.create();
 
-    var AbstractFactory = clazz('/InjectorJS/Factories/Abstract', [parameterProcessor]);
+    var AbstractFactory = clazz('Factories/Abstract');
 
-    var ParameterFactory = clazz('/InjectorJS/Factories/Parameter', AbstractFactory);
-    var ClazzFactory = clazz('/InjectorJS/Factories/Clazz', AbstractFactory, [clazz]);
-    var ServiceFactory = clazz('/InjectorJS/Factories/Service', AbstractFactory);
+    var ObjectFactory = clazz('Factories/Object', AbstractFactory);
+    var ClazzFactory = clazz('Factories/Clazz', AbstractFactory);
+    var ServiceFactory = clazz('Factories/Service', AbstractFactory);
 
-    var parameterFactory = ParameterFactory.create();
+    var objectFactory = ObjectFactory.create();
     var clazzFactory = ClazzFactory.create();
     var serviceFactory = ServiceFactory.create();
 
-    injector
-        .setFactory(parameterFactory.getName(), parameterFactory)
-        .setFactory(clazzFactory.getName(), clazzFactory)
-        .setFactory(serviceFactory.getName(), serviceFactory)
-        .setDefaultFactory(parameterFactory);
+    var injector = Injector.create()
+        .setFactory(objectFactory)
+        .setFactory(clazzFactory)
+        .setFactory(serviceFactory)
+        .setDefaultFactory(objectFactory);
 
     return {
         Factory: {
             Abstract: AbstractFactory,
-            Parameter: ParameterFactory,
+            Object: ObjectFactory,
             Clazz: ClazzFactory,
             Service: ServiceFactory
         },
+
         Injector: Injector,
         ParameterProcessor: ParameterProcessor,
 
