@@ -190,7 +190,7 @@
 
                             var params = _.isFunction(object) ? object.call(that) : object;
 
-                            return factory.create(params);
+                            return _.isFunction(factory) ? factory(params) : factory.create(params);
                         }
                     }
                 }
