@@ -8,7 +8,7 @@
         "email": "aleksey.podskrebyshev@gmail.com",
         "url":   "http://alexpods.com"
     },
-    "main": "dist/ClazzJS.js",
+    "main": "dist/InjectorJS.js",
     "keywords": [
         "dependency",
         "injection",
