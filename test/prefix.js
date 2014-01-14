@@ -1,0 +1,1 @@
+var clazz = ClazzJS.namespace('InjectorJS').get('clazz');
