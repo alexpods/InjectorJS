@@ -2,7 +2,7 @@
     "name": "injector-js",
     "title": "InjectorJS",
     "version": "0.2.0",
-    "description": "IoC container for JavaScript",
+    "description": "simple Dependency Injection Container for JavaScript",
     "author": {
         "name":  "Aleksey Podskrebyshev (Alex Pods)",
         "email": "aleksey.podskrebyshev@gmail.com",
