@@ -117,11 +117,16 @@
                         return (this._hasObject([name]) && this._removeObject([name])) || (this._hasObjectCreator([name]) && this._removeObjectCreator([name]));
                     },
 
-                    setFactory: function(factory) {
-                        if (factory && factory.__clazz && factory.__clazz.__isSubclazzOf('/InjectorJS/Factories/Abstract')) {
-                            return this.__setPropertyValue(['factory', factory.getName()], factory);
+                    setFactory: function(fields, value) {
+                        if (_.isUndefined(value)) {
+                            value = fields;
+                            fields = undefined;
                         }
-                        return this.__setPropertyValue.apply(this, ['factory'].concat(_.toArray(arguments)));
+
+                        if (value && value.__clazz && value.__clazz.__isSubclazzOf('/InjectorJS/Factories/Abstract')) {
+                            return this.__setPropertyValue(['factory', value.getName()], value);
+                        }
+                        return this.__setPropertyValue(['factory'].concat(_.isString(fields) ? fields.split('.') : fields || []), value);
                     },
 
                     hasFactory: function(factory) {

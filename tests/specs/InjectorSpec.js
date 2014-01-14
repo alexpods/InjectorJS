@@ -69,4 +69,16 @@ describe('Injector', function() {
         expect(injector.hasFactory(serviceFactory)).toBe(false);
         expect(function() { injector.getFactory(serviceFactory.getName()) }).toThrow();
     });
+
+    it ('should set factory as function', function() {
+        var factory;
+
+        expect(injector.hasFactory('some_factory')).toBe(false);
+        expect(injector.setFactory('some_factory', factory = function(value) {
+            return 'some' + value;
+        })).toBe(injector);
+        expect(injector.hasFactory('some_factory')).toBe(true);
+        expect(injector.getFactory('some_factory')).toBe(factory);
+        
+    });
 });
