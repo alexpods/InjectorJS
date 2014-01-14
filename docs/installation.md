@@ -60,3 +60,5 @@ That will add InjectorJS variable to your global scope. Use its API to get neces
 ```
 
 Enjoy!
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/c5ce91382a8a9b7ff9ab16e4dee5a25c "githalytics.com")](http://githalytics.com/alexpods/InjectorJS)
