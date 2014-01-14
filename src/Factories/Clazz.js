@@ -1,17 +1,24 @@
-clazz('Clazz', 'Abstract', function(slef, clazz) {
+clazz('Clazz', 'Abstract', function(slef) {
     return {
+        properties: {
+            clazz: {
+                type: 'function',
+                default: function() {
+                    return ClazzJS.clazz;
+                }
+            }
+        },
         methods: {
             getName: function() {
                 return 'clazz'
             },
-            getParamsDefinitions: function() {
+            getParamsDefinition: function() {
                 return {
                     name: {
-                        type: ['string'],
-                        required: true
+                        type: 'string'
                     },
                     parent: {
-                        type: ['function']
+                        type: 'function'
                     },
                     deps: {
                         type: ['array'],
@@ -20,6 +27,7 @@ clazz('Clazz', 'Abstract', function(slef, clazz) {
                 }
             },
             createObject: function(params) {
+                var clazz = this.getClazz();
                 return clazz(params.name, params.parent, params.deps)
             }
         }

@@ -1,5 +1,13 @@
-clazz('Abstract', function(self, parameterProcessor) {
+clazz('Abstract', function(self) {
     return {
+        properties: {
+            parameterProcessor: {
+                type: ['object', { instanceOf: '/InjectorJS/ParameterProcessor' }],
+                default: function() {
+                    return clazz('/InjectorJS/ParameterProcessor').create();
+                }
+            }
+        },
         methods: {
             getName: function() {
                 throw new Error('You must specify type name in child clazz!');
@@ -10,19 +18,21 @@ clazz('Abstract', function(self, parameterProcessor) {
             createObject: function(params) {
                 throw new Error('You must realize "createObject" method in child clazz!');
             },
-            getParamsDefinitions: function() {
+            getParamsDefinition: function() {
                 return {};
             },
             processParams: function(params) {
 
-                var paramsDefinition = this.getParamsDefinitions();
+                var that = this;
+                var paramsDefinition   = this.getParamsDefinition();
+                var parameterProcessor = this.getParameterProcessor();
 
-                for (var param in params) {
+                _.each(params, function(value, param) {
                     if (!(param in paramsDefinition)) {
                         throw new Error('Parameter "' + param + '" does not defined!');
                     }
-                    params[param] = parameterProcessor.process(params[param], paramsDefinition[param], param, this);
-                }
+                    params[param] = parameterProcessor.process(value, paramsDefinition[param], param, that);
+                });
 
                 return params;
             }

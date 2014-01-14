@@ -1,36 +1,34 @@
 
     });
 
-
-    var Injector = clazz('/InjectorJS/Injector');
-    var ParameterProcessor = clazz('/InjectorJS/ParameterProcessor');
-
-    var injector = Injector.create();
+    var Injector = clazz('Injector');
+    var ParameterProcessor = clazz('ParameterProcessor');
     var parameterProcessor = ParameterProcessor.create();
 
-    var AbstractFactory = clazz('/InjectorJS/Factories/Abstract', [parameterProcessor]);
+    var AbstractFactory = clazz('Factories/Abstract');
 
-    var ParameterFactory = clazz('/InjectorJS/Factories/Parameter', AbstractFactory);
-    var ClazzFactory     = clazz('/InjectorJS/Factories/Clazz', AbstractFactory, [clazz]);
-    var ServiceFactory   = clazz('/InjectorJS/Factories/Service', AbstractFactory);
+    var ObjectFactory    = clazz('Factories/Object',  AbstractFactory);
+    var ClazzFactory     = clazz('Factories/Clazz',   AbstractFactory);
+    var ServiceFactory   = clazz('Factories/Service', AbstractFactory);
 
-    var parameterFactory = ParameterFactory.create();
+    var objectFactory    = ObjectFactory.create();
     var clazzFactory     = ClazzFactory.create();
     var serviceFactory   = ServiceFactory.create();
 
-    injector
-        .setFactory(parameterFactory.getName(), parameterFactory)
-        .setFactory(clazzFactory.getName(),   clazzFactory)
-        .setFactory(serviceFactory.getName(), serviceFactory)
-        .setDefaultFactory(parameterFactory);
+    var injector = Injector.create()
+        .setFactory(objectFactory)
+        .setFactory(clazzFactory)
+        .setFactory(serviceFactory)
+        .setDefaultFactory(objectFactory);
 
     return {
         Factory: {
             Abstract:   AbstractFactory,
-            Parameter:  ParameterFactory,
+            Object:     ObjectFactory,
             Clazz:      ClazzFactory,
             Service:    ServiceFactory
         },
+
         Injector:           Injector,
         ParameterProcessor: ParameterProcessor,
 

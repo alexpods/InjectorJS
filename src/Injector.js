@@ -1,99 +1,153 @@
 clazz('Injector', function(self) {
     return {
         properties: {
-            defaultFactory: {
-                type: ['object', { instanceOf: 'Factories/Abstract' }],
-                constraints: {
-                    exists: function(factory) {
-                        return this.hasFactory(factory.getName());
-                    }
-                }
-            },
             factory: {
                 type: ['hash', { element: ['object', { instanceOf: 'Factories/Abstract' }] }],
                 default: {}
             },
-            object: {
+            defaultFactory: {
+                type: ['object', { instanceOf: 'Factories/Abstract' }],
+                converters: {
+                    fromString: function(factory) {
+                        if (_.isUndefined(factory)) {
+                            factory = this.getFactory(factory);
+                        }
+                        return factory;
+                    }
+                },
+                constraints: {
+                    exists: function(factory) {
+                        return this.hasFactory(factory);
+                    }
+                },
+                default: function() {
+                    var factory = clazz('Factories/Object').create();
+
+                    if (!this.hasFactory(factory)) {
+                        this.setFactory(factory);
+                    }
+                    return factory;
+                }
+            },
+            _object: {
                 type: ['hash'],
                 default: {}
             },
-            objectCreator: {
+            _objectCreator: {
                 type: ['hash'],
                 default: {}
-            },
-            getter: {
-                type: ['function']
             }
         },
         methods: {
-            has: function(name) {
-                return this.hasObject(name) || this.hasObjectCreator(name);
-            },
-            get: function(name) {
-                if (!this.hasObject([name])) {
-                    if (!this.hasObjectCreator([name])) {
-                        throw new Error('Factory method for object "' + name + "' does not exists!'");
-                    }
-                    this.setObject([name], this.getObjectCreator([name]).call());
-                    this.removeObjectCreator([name]);
-                }
 
-                return this.getObject([name]);
-            },
-            set: function(/* (name, type, factory) | (types) */) {
-                if (_.isObject(arguments[0])) {
-                    var factories = arguments[0];
+            set: function(name, factory, object) {
 
-                    for (var factory in factories) {
+                var that    = this;
+                var objects = this._resolveObjects(name, factory, object);
 
-                        var objects = factories[factory];
+                _.each(objects, function(factoryObjects, factory) {
+                    _.each(factoryObjects, function(object, name) {
+                        that._setObjectCreator([name], that._createObjectCreator(factory, object));
+                    });
+                });
 
-                        if (!this.hasFactory(factory)) {
-                            objects = {};
-                            objects[factory] = factories[factory];
-                            factory = undefined;
-                        }
-
-                        for (var name in objects) {
-                            this.setObjectCreator([name], this.createObjectCreator(factory, objects[name]));
-                        }
-                    }
-                }
-                else {
-                    this.setObjectCreator([arguments[0]], this.createObjectCreator(arguments[1], arguments[2]));
-                }
                 return this;
             },
 
-            getGetterMethod: function() {
-                if (!this.hasGetter()) {
-                    var that = this;
-
-                    this.setGetter(function(name) {
-                        return that.get(name);
-                    })
-                }
-
-                return this.getGetter();
+            has: function(name) {
+                return this._hasObject([name]) || this._hasObjectCreator([name]);
             },
 
-            createObjectCreator: function(/* factoryName, factoryMethod */) {
+            get: function(name) {
+                this._checkObject(name);
 
-                if (2 === arguments.length) {
-                    var factoryMethod = arguments[1], factoryName   = arguments[0];
+                if (!this._hasObject([name])) {
+                    this._setObject([name], this._getObjectCreator([name]).call())._removeObjectCreator([name]);
+                }
+                return this._getObject([name]);
+            },
+
+            remove: function(name) {
+                this._checkObject(name);
+
+                return (this._hasObject([name]) && this._removeObject([name]))
+                    || (this._hasObjectCreator([name]) && this._removeObjectCreator([name]));
+            },
+
+            setFactory: function(factory) {
+                return this.__setPropertyValue(['factory', factory.getName()], factory);
+            },
+
+            hasFactory: function(factory) {
+                var factoryName = _.isString(factory) ? factory : factory.getName();
+                return this.__hasPropertyValue(['factory', factoryName]);
+            },
+
+            setDefaultFactory: function(factory) {
+                return this.setFactory(factory);
+            },
+
+            _checkObject: function(name) {
+                if (!this.has(name)) {
+                    throw new Error('Object "' + name + "' does not exists!'");
+
+                }
+            },
+
+            _resolveObjects: function(name, factory, object) {
+
+                var that = this;
+                var objects = {};
+                var defaultFactory = this.getDefaultFactory().getName();
+
+                if (_.isObject(name)) {
+                    objects = name;
                 }
                 else {
-                    var factoryName   = undefined, factoryMethod = arguments[0];
+                    if (_.isUndefined(object)) {
+                        object    = factory;
+                        factory   = undefined;
+                    }
+
+                    if (_.isUndefined(factory)) {
+                        factory = defaultFactory;
+                    }
+
+                    objects[factory] = {};
+                    objects[factory][name] = object;
+                }
+
+                _.each(objects, function(factoryObjects, factory) {
+                    if (!that.hasFactory(factory)) {
+                        if (!(defaultFactory in objects)) {
+                            objects[defaultFactory] = {};
+                        }
+
+                        objects[defaultFactory][factory] = factoryObjects;
+                        delete objects[factory];
+                    }
+                });
+
+                return objects;
+            },
+
+            _createObjectCreator: function(factoryName, object) {
+                if (_.isUndefined(object)) {
+                    object      = factoryName;
+                    factoryName = undefined;
                 }
 
                 var that    = this;
-                var factory = !_.isUndefined(factoryName) ? this.getFactory(factoryName) : this.getDefaultFactory();
 
                 return function() {
 
-                    var params  = _.isFunction(factoryMethod)
-                        ? factoryMethod.call(factory, that.getGetterMethod())
-                        : factoryMethod;
+                    var factory = !_.isUndefined(factoryName)
+                        ? that.getFactory(factoryName)
+                        : that.getDefaultFactory();
+
+                    var params  = _.isFunction(object)
+                        ? object.call(that)
+                        : object;
 
                     return factory.create(params);
                 }

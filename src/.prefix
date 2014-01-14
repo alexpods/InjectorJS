@@ -34,7 +34,8 @@
 }((new Function('return this'))(), 'InjectorJS', ['ClazzJS'], function (ClazzJS, undefined) {
 
     var namespace = ClazzJS.namespace;
-    var clazz     = ClazzJS.clazz;
-    var meta      = ClazzJS.meta;
+    var clazz     = namespace('InjectorJS').get('clazz');
+    var meta      = namespace('InjectorJS').get('meta');
+    var _         = ClazzJS._;
 
     namespace('InjectorJS', function(clazz, namespace) {

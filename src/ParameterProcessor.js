@@ -1,43 +1,49 @@
 clazz('ParameterProcessor', function(self) {
     return {
-        constants: {
-            PROCESSORS: {
-                type:        meta('/ClazzJS/Property/Type'),
-                constraints: meta('/ClazzJS/Property/Constraints'),
-                converters:  meta('/ClazzJS/Property/Converters')
+        properties: {
+            processor: {
+                type: ['hash', { element: 'function' }],
+                default: function() {
+                    return {
+                        type: function(paramValue, metaData, paramName, object) {
+                            return meta('/ClazzJS/Property/Type').apply(paramValue, metaData, paramName, [], object);
+                        },
+                        constraints: function(paramValue, metaData, paramName, object) {
+                            return meta('/ClazzJS/Property/Constraints').apply(paramValue, metaData, paramName, [], object);
+                        },
+                        converters: function(paramValue, metaData, paramName, object) {
+                            return meta('/ClazzJS/Property/Converters').apply(paramValue, metaData, paramName, [], object);
+                        },
+                        default: function(paramValue, metaData, paramName, object) {
+                               if (_.isUndefined(paramValue) || _.isNull(paramValue)) {
+                                paramValue = _.isFunction(metaData)
+                                    ? metaData.call(object)
+                                    : metaData;
+                            }
+                            return paramValue;
+                        }
+                    };
+                }
             }
         },
         methods: {
-            process: function(value, meta, name, object) {
+            process: function(paramValue, metaData, paramName, object) {
 
-                var options = ['converters', 'constraints', 'default', 'type'];
+                paramName = paramName || 'unknown';
+                object    = object || this;
 
-                for (var i = 0, ii = options.length; i < ii; ++i) {
-                    if (!(options[i] in meta)) {
-                        continue;
+                var that = this;
+                var processors = this.getProcessor();
+
+                _.each(metaData, function(data, option) {
+                    if (!(option in processors)) {
+                        return;
                     }
 
-                    switch (options[i]) {
+                    paramValue = processors[option].call(that, paramValue, data, paramName, object);
+                });
 
-                        case 'type':
-                        case 'constraints':
-                        case 'converters':
-                            value = this.const('PROCESSORS', options[i]).apply(value, meta[options[i]], name, [], object);
-                            break;
-
-                        case 'default':
-                            var defaultValue = meta[options[i]];
-
-                            if (_.isFunction(defaultValue)) {
-                                defaultValue = defaultValue.call();
-                            }
-                            if (_.isUndefined(value) || _.isNull(value)) {
-                                value = defaultValue;
-                            }
-                            break;
-                    }
-                }
-                return value;
+                return paramValue;
             }
         }
     }
