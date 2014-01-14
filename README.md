@@ -15,6 +15,8 @@ For installation read [related chapter](https://github.com/alexpods/InjectorJS/b
 
 ###Usage###
 
+> Online working version of fol;owing examples is available on plunker: http://plnkr.co/edit/SDXdO5. Feel free to play around with it!
+
 Definition of simple objects (parameters):
 ```js
 injector.set('name', 'Bob');
@@ -39,16 +41,17 @@ You can define several objects in one set method call:
 injector.set({
     auto_color: function() {
         return Math.random() < 0.5 ? 'black' : 'white';
-    }
+    },
     auto_type: function() {
         return Math.random() < 0.5 ? 'hatchback' : 'sedan';
     },
     auto: function() {
         return {
             color: this.get('auto_color'),
-            type:  this.get('auto_type)
+            type:  this.get('auto_type')
+        };
     }
-})
+});
 ```
 
 You can add object factory to injector to simplify creation of common type objects. Before creation object value will be passed to appropriate object factory:
@@ -61,7 +64,7 @@ injector.set('hours_in_minutes', 'x60', function() {
     return 5;
 });
 
-injector.get('hours_in_minutes'); // 300
+console.log(injector.get('hours_in_minutes')); // 300
 
 injector.setFactory('join', {
     create: function(strings) {
@@ -71,7 +74,7 @@ injector.setFactory('join', {
 
 injector.set('hello', 'join', ['hello', 'world', '!']);
 
-injector.get('hello'); // hello world !
+console.log(injector.get('hello')); // hello world !
 ```
 
 As you see object factory can be a function or an object with create method. By default there are 3 object factories:
@@ -85,7 +88,7 @@ injector.set({
         person: function() {
             return {
                 class: this.get('person_class'),
-                init:  [this.get('person_age'],
+                init:  [this.get('person_age')],
                 call: {
                     setName: [this.get('person_name')]
                 }
@@ -125,7 +128,7 @@ console.log(person.age);  // 10
 
 Dependencies
 ------------
-* [ClazzJS](https://github.com/alexpods/ClazzJS)
+* ClazzJS (https://github.com/alexpods/ClazzJS)
 
 License
 -------
