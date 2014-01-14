@@ -36,16 +36,19 @@ $ bower install InjectorJS
 
 Then add next tag to html header:
 ```html
+<script type="text/javascript" src="bower_components/ClazzJS/dist/ClazzJS.js"></script>
 <script type="text/javascript" src="bower_components/InjectorJS/dist/InjectorJS.js"></script>
 ```
 or if you want minified version:
 ```html
+<script type="text/javascript" src="bower_components/ClazzJS/dist/ClazzJS.min.js"></script>
 <script type="text/javascript" src="bower_components/InjectorJS/dist/InjectorJS.min.js"></script>
 ```
 
 ####Manually downloading###
-Download [full](../dist/InjectorJS.js) or [minified](../dist/InjectorJS.min.js) version of the library. Than put library into your project and add next tag to html header:
+Download [full](../dist/InjectorJS.js) or [minified](../dist/InjectorJS.min.js) version of the library. Also you must download [ClazzJS](https://github.com/alexpods/ClazzJS) sources. Than put library into your project and add next tag to html header:
 ```html
+<script type="text/javascript" src="path/to/clazz-js-library.js"></script>
 <script type="text/javascript" src="path/to/injector-js-library.js"></script>
 ```
 
