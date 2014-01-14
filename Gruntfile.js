@@ -4,6 +4,7 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-jasmine');
     grunt.loadNpmTasks('grunt-jsbeautifier');
 
     grunt.initConfig({
@@ -20,6 +21,18 @@ module.exports = function(grunt) {
                     "src/.build",
                     "src/.suffix"
                 ]
+            }
+        },
+        jasmine: {
+            test: {
+                src: ["<%= concat.dev.dest %>"],
+                options: {
+                    specs:   ['test/specs/**/*.js'],
+                    vendor:  [
+                        'node_modules/clazz-js/dist/ClazzJS.js',
+                        'test/prefix.js'
+                    ]
+                }
             }
         },
         uglify: {
@@ -42,7 +55,7 @@ module.exports = function(grunt) {
                 src:  ["<%= concat.dev.dest %>"]
             }
         }
-    })
+    });
 
-    grunt.registerTask('default', ['concat', 'uglify', 'jsbeautifier']);
+    grunt.registerTask('default', ['concat', 'jasmine', 'uglify', 'jsbeautifier']);
 };

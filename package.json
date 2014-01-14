@@ -1,37 +1,39 @@
 {
-  "name": "injector-js",
-  "title": "InjectorJS",
-  "version": "0.1.1",
-  "description": "IoC container for JavaScript",
-  "author": {
-    "name":  "Aleksey Podskrebyshev (Alex Pods)",
-    "email": "aleksey.podskrebyshev@gmail.com",
-    "url":   "http://alexpods.com"
-  },
-  "keywords": [
-      "dependency",
-      "injection",
-      "di",
-      "ioc",
-      "container",
-      "service",
-      "inject",
-      "injector",
-      "dependency injection"
-  ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url":  "http://github.com/alexpods/InjectorJS.git"
-  },
-  "dependencies": {
-    "clazz-js": "~0.3.1"
-  },
-  "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-uglify": "~0.2.4",
-    "grunt-jsbeautifier":   "~0.2.3"
-  },
-  "readmeFilename": "README.md"
+    "name": "injector-js",
+    "title": "InjectorJS",
+    "version": "0.2.0",
+    "description": "IoC container for JavaScript",
+    "author": {
+        "name":  "Aleksey Podskrebyshev (Alex Pods)",
+        "email": "aleksey.podskrebyshev@gmail.com",
+        "url":   "http://alexpods.com"
+    },
+    "keywords": [
+        "dependency",
+        "injection",
+        "di",
+        "ioc",
+        "container",
+        "service",
+        "inject",
+        "injector",
+        "dependency injection"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url":  "http://github.com/alexpods/InjectorJS.git"
+    },
+    "dependencies": {
+        "clazz-js": "~0.5.1"
+    },
+    "devDependencies": {
+        "grunt": "~0.4.1",
+        "grunt-contrib-concat":     "~0.3.0",
+        "grunt-contrib-uglify":     "~0.2.4",
+        "grunt-contrib-jasmine":    "~0.5.2",
+        "grunt-jsbeautifier":       "~0.2.3"
+    },
+    "readmeFilename": "README.md"
+
 }
