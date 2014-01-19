@@ -19,9 +19,12 @@ For installation read [related chapter](https://github.com/alexpods/InjectorJS/b
 
 Definition of simple objects (parameters):
 ```js
+console.log(injector.has('name')); // false
+
 injector.set('name', 'Bob');
-injector.set('PI', 3.14);
-injector.set('currentTime', new Date());
+injector.set('PI', 3.14).set('currentTime', new Date());
+
+console.log(injector.has('name')); // true
 ```
 
 Defition of objects by factory functions:
