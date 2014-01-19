@@ -1,36 +1,60 @@
+/**
+ * Parameter processor
+ * Checks and convert parameter value
+ *
+ * @class
+ */
 clazz('ParameterProcessor', function(self) {
     return {
         properties: {
+
+            /**
+             * Processors
+             * By default there are four processors: type, constraints, converters and default
+             * @var {object}
+             */
             processor: {
                 type: ['hash', { element: 'function' }],
                 default: function() {
                     return {
-                        type: function(paramValue, metaData, paramName, object) {
-                            return meta('/ClazzJS/Property/Type').apply(paramValue, metaData, paramName, [], object);
+                        type: function(value, metaData, name, object) {
+                            return meta('/ClazzJS/Property/Type').apply(value, metaData, name, [], object);
                         },
-                        constraints: function(paramValue, metaData, paramName, object) {
-                            return meta('/ClazzJS/Property/Constraints').apply(paramValue, metaData, paramName, [], object);
+                        constraints: function(value, metaData, name, object) {
+                            return meta('/ClazzJS/Property/Constraints').apply(value, metaData, name, [], object);
                         },
-                        converters: function(paramValue, metaData, paramName, object) {
-                            return meta('/ClazzJS/Property/Converters').apply(paramValue, metaData, paramName, [], object);
+                        converters: function(value, metaData, name, object) {
+                            return meta('/ClazzJS/Property/Converters').apply(value, metaData, name, [], object);
                         },
-                        default: function(paramValue, metaData, paramName, object) {
-                               if (_.isUndefined(paramValue) || _.isNull(paramValue)) {
-                                paramValue = _.isFunction(metaData)
+                        "default": function(value, metaData, name, object) {
+                               if (_.isUndefined(value) || _.isNull(value)) {
+                                value = _.isFunction(metaData)
                                     ? metaData.call(object)
                                     : metaData;
                             }
-                            return paramValue;
+                            return value;
                         }
                     };
                 }
             }
         },
         methods: {
-            process: function(paramValue, metaData, paramName, object) {
 
-                paramName = paramName || 'unknown';
-                object    = object || this;
+            /**
+             * Process parameter value
+             *
+             * @param {*}      value     Parameter value
+             * @param {object} metaData  Meta data for parameter
+             * @param {string} name      Parameter name
+             * @param {object} object    Object of specified parameter
+             * @returns {*} Processed parameter value
+             *
+             * @this {ParameterProcessor}
+             */
+            process: function(value, metaData, name, object) {
+
+                name   = name   || 'unknown';
+                object = object || this;
 
                 var that = this;
                 var processors = this.getProcessor();
@@ -40,10 +64,10 @@ clazz('ParameterProcessor', function(self) {
                         return;
                     }
 
-                    paramValue = processors[option].call(that, paramValue, data, paramName, object);
+                    value = processors[option].call(that, value, data, name, object);
                 });
 
-                return paramValue;
+                return value;
             }
         }
     }

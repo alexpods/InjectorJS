@@ -1,10 +1,26 @@
+/**
+ * Injector
+ * Realization of DI container.
+ *
+ * @class
+ */
 clazz('Injector', function(self) {
     return {
         properties: {
+
+            /**
+             * Supported factories
+             * @var {object}
+             */
             factory: {
                 type: ['hash'],
                 default: {}
             },
+
+            /**
+             * Default factory
+             * @var {AbstractFactory}
+             */
             defaultFactory: {
                 converters: {
                     fromString: function(factory) {
@@ -28,10 +44,20 @@ clazz('Injector', function(self) {
                     return factory;
                 }
             },
+
+            /**
+             * Created objects in the container
+             * @var {object}
+             */
             _object: {
                 type: ['hash'],
                 default: {}
             },
+
+            /**
+             * Object creators. Used when gets some object.
+             * @var {object}
+             */
             _objectCreator: {
                 type: ['hash'],
                 default: {}
@@ -39,6 +65,16 @@ clazz('Injector', function(self) {
         },
         methods: {
 
+            /**
+             * Sets new object to the container
+             *
+             * @param {string|object} name      Object name or hash of the objects
+             * @param {string}        factory   Factory name
+             * @param {*}             object    Object or its factory method
+             * @returns {Injector} this
+             *
+             * @this {Injector}
+             */
             set: function(name, factory, object) {
 
                 var that    = this;
@@ -53,10 +89,28 @@ clazz('Injector', function(self) {
                 return this;
             },
 
+            /**
+             * Checks whether specified object exist
+             *
+             * @param {string} name Object name
+             * @returns {boolean} true if specified object exist
+             *
+             * @this {Injector}
+             */
             has: function(name) {
                 return this._hasObject([name]) || this._hasObjectCreator([name]);
             },
 
+            /**
+             * Gets specified object
+             *
+             * @param {string} name Object name
+             * @returns {*} Specified object
+             *
+             * @throws {Error} if specified object does not exist
+             *
+             * @this {Injector}
+             */
             get: function(name) {
                 this._checkObject(name);
 
@@ -66,6 +120,16 @@ clazz('Injector', function(self) {
                 return this._getObject([name]);
             },
 
+            /**
+             * Removes specified object
+             *
+             * @param {string} name Object name
+             * @returns {Injector} this
+             *
+             * @throws {Error} if specified object does not exist
+             *
+             * @this {Injector}
+             */
             remove: function(name) {
                 this._checkObject(name);
 
@@ -73,34 +137,86 @@ clazz('Injector', function(self) {
                     || (this._hasObjectCreator([name]) && this._removeObjectCreator([name]));
             },
 
-            setFactory: function(fields, value) {
-                if (_.isUndefined(value)) {
-                    value = fields;
-                    fields = undefined;
+            /**
+             * Sets object factory
+             *
+             * @param {string,Factory}   name     Factory name of factory instance
+             * @param {function|Factory} factory  Object factory
+             * @returns {Injector} this
+             *
+             * @this {Injector}
+             */
+            setFactory: function(name, factory) {
+                if (_.isUndefined(factory)) {
+                    factory = name;
+                    name = undefined;
                 }
 
-                if (value && value.__clazz && value.__clazz.__isSubclazzOf('/InjectorJS/Factories/Abstract')) {
-                    return this.__setPropertyValue(['factory', value.getName()], value);
+                if (factory && factory.__clazz && factory.__clazz.__isSubclazzOf('/InjectorJS/Factories/Abstract')) {
+                    return this.__setPropertyValue(['factory', factory.getName()], factory);
                 }
-                return this.__setPropertyValue(['factory'].concat(_.isString(fields) ? fields.split('.') : fields || []), value);
+
+                var fields = _.isString(name) ? name.split('.') : name || [];
+
+                return this.__setPropertyValue(['factory'].concat(fields), factory);
             },
 
+            /**
+             * Checks whether specified factory exist
+             *
+             * @param {string|Factory} factory Object factory or its name
+             * @returns {boolean} true if object factory exist
+             *
+             * @this {Injector}
+             */
             hasFactory: function(factory) {
                 var factoryName = _.isString(factory) ? factory : factory.getName();
                 return this.__hasPropertyValue(['factory', factoryName]);
             },
 
+            /**
+             * Sets default factory
+             * @param {string|Factory} factory Default factory or its name
+             * @returns {Injector} this
+             *
+             * @this {Injector}
+             */
             setDefaultFactory: function(factory) {
                 return this.setFactory(factory);
             },
 
+            /**
+             * Checks whether specified object exist
+             *
+             * @param {string} name Object name
+             * @returns {Injector} this
+             *
+             * @throws {Error} if specified object does not exist
+             *
+             * @this {Injector}
+             * @private
+             */
             _checkObject: function(name) {
                 if (!this.has(name)) {
                     throw new Error('Object "' + name + "' does not exists!'");
 
                 }
+                return this;
             },
 
+            /**
+             * Resolves specified objects
+             *
+             * @see set() method
+             *
+             * @param {string|object} name      Object name or hash of the objects
+             * @param {string}        factory   Factory name
+             * @param {*}             object    Object or its factory method
+             * @returns {object} Resolved objects
+             *
+             * @this {Injector}
+             * @private
+             */
             _resolveObjects: function(name, factory, object) {
 
                 var that = this;
@@ -138,13 +254,23 @@ clazz('Injector', function(self) {
                 return objects;
             },
 
+            /**
+             * Creates object creator
+             *
+             * @param {string}    factoryName Factory name
+             * @param {*|factory} object      Object or its factory function
+             * @returns {Function} Object     creator
+             *
+             * @this {Injector}
+             * @private
+             */
             _createObjectCreator: function(factoryName, object) {
                 if (_.isUndefined(object)) {
                     object      = factoryName;
                     factoryName = undefined;
                 }
 
-                var that    = this;
+                var that = this;
 
                 return function() {
 
