@@ -26,7 +26,7 @@
         "url":  "http://github.com/alexpods/InjectorJS.git"
     },
     "dependencies": {
-        "clazz-js": "~0.5.1"
+        "clazz-js": "~0.5.2"
     },
     "devDependencies": {
         "grunt": "~0.4.2",
