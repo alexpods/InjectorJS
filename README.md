@@ -2,7 +2,10 @@ InjectorJS
 ==========
 
 InjectorJS is a simple Dependency Injection Container for JavaScript. It helps you to remove hard-corded
-dependencies and make it possible to change them at any time.
+dependencies and make it possible to change them at any time. For more information about this pattern loak at: 
+* http://en.wikipedia.org/wiki/Dependency_injection
+* http://en.wikipedia.org/wiki/Inversion_of_control
+* http://www.youtube.com/watch?v=IKD2-MAkXyQ
 
 Documentation
 -------------
