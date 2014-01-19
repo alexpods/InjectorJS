@@ -43,13 +43,29 @@
 
     namespace('InjectorJS', function(clazz, namespace) {
 
+        /**
+         * Injector
+         * Realization of DI container.
+         *
+         * @class
+         */
         clazz('Injector', function(self) {
             return {
                 properties: {
+
+                    /**
+                     * Supported factories
+                     * @var {object}
+                     */
                     factory: {
                         type: ['hash'],
                         default: {}
                     },
+
+                    /**
+                     * Default factory
+                     * @var {AbstractFactory}
+                     */
                     defaultFactory: {
                         converters: {
                             fromString: function(factory) {
@@ -73,10 +89,20 @@
                             return factory;
                         }
                     },
+
+                    /**
+                     * Created objects in the container
+                     * @var {object}
+                     */
                     _object: {
                         type: ['hash'],
                         default: {}
                     },
+
+                    /**
+                     * Object creators. Used when gets some object.
+                     * @var {object}
+                     */
                     _objectCreator: {
                         type: ['hash'],
                         default: {}
@@ -84,6 +110,16 @@
                 },
                 methods: {
 
+                    /**
+                     * Sets new object to the container
+                     *
+                     * @param {string|object} name      Object name or hash of the objects
+                     * @param {string}        factory   Factory name
+                     * @param {*}             object    Object or its factory method
+                     * @returns {Injector} this
+                     *
+                     * @this {Injector}
+                     */
                     set: function(name, factory, object) {
 
                         var that = this;
@@ -98,10 +134,28 @@
                         return this;
                     },
 
+                    /**
+                     * Checks whether specified object exist
+                     *
+                     * @param {string} name Object name
+                     * @returns {boolean} true if specified object exist
+                     *
+                     * @this {Injector}
+                     */
                     has: function(name) {
                         return this._hasObject([name]) || this._hasObjectCreator([name]);
                     },
 
+                    /**
+                     * Gets specified object
+                     *
+                     * @param {string} name Object name
+                     * @returns {*} Specified object
+                     *
+                     * @throws {Error} if specified object does not exist
+                     *
+                     * @this {Injector}
+                     */
                     get: function(name) {
                         this._checkObject(name);
 
@@ -111,40 +165,102 @@
                         return this._getObject([name]);
                     },
 
+                    /**
+                     * Removes specified object
+                     *
+                     * @param {string} name Object name
+                     * @returns {Injector} this
+                     *
+                     * @throws {Error} if specified object does not exist
+                     *
+                     * @this {Injector}
+                     */
                     remove: function(name) {
                         this._checkObject(name);
 
                         return (this._hasObject([name]) && this._removeObject([name])) || (this._hasObjectCreator([name]) && this._removeObjectCreator([name]));
                     },
 
-                    setFactory: function(fields, value) {
-                        if (_.isUndefined(value)) {
-                            value = fields;
-                            fields = undefined;
+                    /**
+                     * Sets object factory
+                     *
+                     * @param {string,Factory}   name     Factory name of factory instance
+                     * @param {function|Factory} factory  Object factory
+                     * @returns {Injector} this
+                     *
+                     * @this {Injector}
+                     */
+                    setFactory: function(name, factory) {
+                        if (_.isUndefined(factory)) {
+                            factory = name;
+                            name = undefined;
                         }
 
-                        if (value && value.__clazz && value.__clazz.__isSubclazzOf('/InjectorJS/Factories/Abstract')) {
-                            return this.__setPropertyValue(['factory', value.getName()], value);
+                        if (factory && factory.__clazz && factory.__clazz.__isSubclazzOf('/InjectorJS/Factories/Abstract')) {
+                            return this.__setPropertyValue(['factory', factory.getName()], factory);
                         }
-                        return this.__setPropertyValue(['factory'].concat(_.isString(fields) ? fields.split('.') : fields || []), value);
+
+                        var fields = _.isString(name) ? name.split('.') : name || [];
+
+                        return this.__setPropertyValue(['factory'].concat(fields), factory);
                     },
 
+                    /**
+                     * Checks whether specified factory exist
+                     *
+                     * @param {string|Factory} factory Object factory or its name
+                     * @returns {boolean} true if object factory exist
+                     *
+                     * @this {Injector}
+                     */
                     hasFactory: function(factory) {
                         var factoryName = _.isString(factory) ? factory : factory.getName();
                         return this.__hasPropertyValue(['factory', factoryName]);
                     },
 
+                    /**
+                     * Sets default factory
+                     * @param {string|Factory} factory Default factory or its name
+                     * @returns {Injector} this
+                     *
+                     * @this {Injector}
+                     */
                     setDefaultFactory: function(factory) {
                         return this.setFactory(factory);
                     },
 
+                    /**
+                     * Checks whether specified object exist
+                     *
+                     * @param {string} name Object name
+                     * @returns {Injector} this
+                     *
+                     * @throws {Error} if specified object does not exist
+                     *
+                     * @this {Injector}
+                     * @private
+                     */
                     _checkObject: function(name) {
                         if (!this.has(name)) {
                             throw new Error('Object "' + name + "' does not exists!'");
 
                         }
+                        return this;
                     },
 
+                    /**
+                     * Resolves specified objects
+                     *
+                     * @see set() method
+                     *
+                     * @param {string|object} name      Object name or hash of the objects
+                     * @param {string}        factory   Factory name
+                     * @param {*}             object    Object or its factory method
+                     * @returns {object} Resolved objects
+                     *
+                     * @this {Injector}
+                     * @private
+                     */
                     _resolveObjects: function(name, factory, object) {
 
                         var that = this;
@@ -181,6 +297,16 @@
                         return objects;
                     },
 
+                    /**
+                     * Creates object creator
+                     *
+                     * @param {string}    factoryName Factory name
+                     * @param {*|factory} object      Object or its factory function
+                     * @returns {Function} Object     creator
+                     *
+                     * @this {Injector}
+                     * @private
+                     */
                     _createObjectCreator: function(factoryName, object) {
                         if (_.isUndefined(object)) {
                             object = factoryName;
@@ -201,38 +327,62 @@
                 }
             }
         });
+        /**
+         * Parameter processor
+         * Checks and convert parameter value
+         *
+         * @class
+         */
         clazz('ParameterProcessor', function(self) {
             return {
                 properties: {
+
+                    /**
+                     * Processors
+                     * By default there are four processors: type, constraints, converters and default
+                     * @var {object}
+                     */
                     processor: {
                         type: ['hash', {
                             element: 'function'
                         }],
                         default: function() {
                             return {
-                                type: function(paramValue, metaData, paramName, object) {
-                                    return meta('/ClazzJS/Property/Type').apply(paramValue, metaData, paramName, [], object);
+                                type: function(value, metaData, name, object) {
+                                    return meta('/ClazzJS/Property/Type').apply(value, metaData, name, [], object);
                                 },
-                                constraints: function(paramValue, metaData, paramName, object) {
-                                    return meta('/ClazzJS/Property/Constraints').apply(paramValue, metaData, paramName, [], object);
+                                constraints: function(value, metaData, name, object) {
+                                    return meta('/ClazzJS/Property/Constraints').apply(value, metaData, name, [], object);
                                 },
-                                converters: function(paramValue, metaData, paramName, object) {
-                                    return meta('/ClazzJS/Property/Converters').apply(paramValue, metaData, paramName, [], object);
+                                converters: function(value, metaData, name, object) {
+                                    return meta('/ClazzJS/Property/Converters').apply(value, metaData, name, [], object);
                                 },
-                                default: function(paramValue, metaData, paramName, object) {
-                                    if (_.isUndefined(paramValue) || _.isNull(paramValue)) {
-                                        paramValue = _.isFunction(metaData) ? metaData.call(object) : metaData;
+                                "default": function(value, metaData, name, object) {
+                                    if (_.isUndefined(value) || _.isNull(value)) {
+                                        value = _.isFunction(metaData) ? metaData.call(object) : metaData;
                                     }
-                                    return paramValue;
+                                    return value;
                                 }
                             };
                         }
                     }
                 },
                 methods: {
-                    process: function(paramValue, metaData, paramName, object) {
 
-                        paramName = paramName || 'unknown';
+                    /**
+                     * Process parameter value
+                     *
+                     * @param {*}      value     Parameter value
+                     * @param {object} metaData  Meta data for parameter
+                     * @param {string} name      Parameter name
+                     * @param {object} object    Object of specified parameter
+                     * @returns {*} Processed parameter value
+                     *
+                     * @this {ParameterProcessor}
+                     */
+                    process: function(value, metaData, name, object) {
+
+                        name = name || 'unknown';
                         object = object || this;
 
                         var that = this;
@@ -243,40 +393,101 @@
                                 return;
                             }
 
-                            paramValue = processors[option].call(that, paramValue, data, paramName, object);
+                            value = processors[option].call(that, value, data, name, object);
                         });
 
-                        return paramValue;
+                        return value;
                     }
                 }
             }
         });
         namespace('Factories', function(clazz) {
+            /**
+             * Abstract object factory
+             *
+             * @typedef {function} AbstractFactory
+             * @class
+             */
             clazz('Abstract', function(self) {
                 return {
                     properties: {
+
+                        /**
+                         * Parameter processor
+                         * Processed parameters before pass them to create method
+                         *
+                         * @see create()
+                         * @see processParams()
+                         *
+                         * @var {ParameterProcessor}
+                         */
                         parameterProcessor: {
                             type: ['object', {
                                 instanceOf: '/InjectorJS/ParameterProcessor'
                             }],
-                            default: function() {
+                            "default": function() {
                                 return clazz('/InjectorJS/ParameterProcessor').create();
                             }
                         }
                     },
                     methods: {
+
+                        /**
+                         * Gets object factory name
+                         * Must be realized in child clazz
+                         *
+                         * @returns {string} Object factory name
+                         *
+                         * @this {AbstractFactory}
+                         */
                         getName: function() {
                             throw new Error('You must specify type name in child clazz!');
                         },
+
+                        /**
+                         * Creates object using specified raw parameters
+                         *
+                         * @param {object} params Raw parameters for object creation
+                         * @returns {*} Created object
+                         *
+                         * @this {AbstractFactory}
+                         */
                         create: function(params) {
                             return this.createObject(this.processParams(params));
                         },
+
+                        /**
+                         * Creates object using specified processed parameters
+                         * Must be realized in child clazz
+                         *
+                         * @param {object} params Parameters for object creation
+                         * @returns {*} Created object
+                         *
+                         * @this {AbstractFactory}
+                         */
                         createObject: function(params) {
                             throw new Error('You must realize "createObject" method in child clazz!');
                         },
+
+                        /**
+                         * Gets definition of supported parameters for object creation
+                         *
+                         * @returns {object}
+                         *
+                         * @this {AbstractFactory}
+                         */
                         getParamsDefinition: function() {
                             return {};
                         },
+
+                        /**
+                         * Process parameters for object creation
+                         *
+                         * @param {object} params Raw object parameters for object creation
+                         * @returns {object} Processed object parameters
+                         *
+                         * @this {AbstractFactory}
+                         */
                         processParams: function(params) {
 
                             var that = this;
@@ -295,20 +506,47 @@
                     }
                 };
             });
-            clazz('Clazz', 'Abstract', function(slef) {
+            /**
+             * Clazz object factory
+             * Create clazz based on 'name', 'parent' and 'deps' (dependencies) parameters
+             *
+             * @typedef {function} ClazzFactory
+             * @class
+             */
+            clazz('Clazz', 'Abstract', function(self) {
                 return {
                     properties: {
+
+                        /**
+                         * Clazz constructor
+                         * @var
+                         */
                         clazz: {
                             type: 'function',
-                            default: function() {
+                            "default": function() {
                                 return ClazzJS.clazz;
                             }
                         }
                     },
                     methods: {
+
+                        /**
+                         * Gets object factory name
+                         * @returns {string} Object factory name
+                         *
+                         * @this {ClazzFactory}
+                         */
                         getName: function() {
                             return 'clazz'
                         },
+
+                        /**
+                         * Gets parameters definition for clazz creation
+                         *
+                         * @returns {object} Parameters definition
+                         *
+                         * @this {ClazzFactory}
+                         */
                         getParamsDefinition: function() {
                             return {
                                 name: {
@@ -323,6 +561,15 @@
                                 }
                             }
                         },
+
+                        /**
+                         * Creates clazz using specified processed parameters
+                         *
+                         * @param {object} params Parameters for clazz creation
+                         * @returns {*} Created clazz
+                         *
+                         * @this {ClazzFactory}
+                         */
                         createObject: function(params) {
                             var clazz = this.getClazz();
                             return clazz(params.name, params.parent, params.deps)
@@ -330,25 +577,70 @@
                     }
                 }
             });
+            /**
+             * Object object factory
+             * Just returns specified value
+             *
+             * @typedef {function} ObjectFactory
+             * @class
+             */
             clazz('Object', 'Abstract', function(self) {
                 return {
                     methods: {
+
+                        /**
+                         * Gets object factory name
+                         * @returns {string} Object factory name
+                         *
+                         * @this {ObjectFactory}
+                         */
                         getName: function() {
                             return 'object';
                         },
+
+                        /**
+                         * Creates object
+                         * Just returns specified value
+                         *
+                         * @param {*} value Some value (must be returned)
+                         * @returns {*} Unprocessed value
+                         *
+                         * @this {AbstractFactory}
+                         */
                         create: function(value) {
                             return value;
                         }
                     }
                 };
             });
+            /**
+             * Service object factory
+             * Instantiate object based on specified class and initialization parameters
+             *
+             * @typedef {function} ServiceFactory
+             * @class
+             */
             clazz('Service', 'Abstract', function(self) {
                 return {
                     methods: {
+
+                        /**
+                         * Gets object factory name
+                         * @returns {string} Object factory name
+                         *
+                         * @this {ServiceFactory}
+                         */
                         getName: function() {
                             return 'service'
                         },
 
+                        /**
+                         * Gets parameters definition for object instantiation creation
+                         *
+                         * @returns {object} Parameters definition
+                         *
+                         * @this {ClazzFactory}
+                         */
                         getParamsDefinition: function() {
                             return {
                                 class: {
@@ -367,6 +659,14 @@
                             }
                         },
 
+                        /**
+                         * Creates object using specified processed parameters
+                         *
+                         * @param {object} params Parameters for object creation
+                         * @returns {*} Created object
+                         *
+                         * @this {ServiceFactory}
+                         */
                         createObject: function(params) {
 
                             // Create '_createService' function for this purpose for parameters applying to clazz constructor.
@@ -379,6 +679,17 @@
                             return service;
                         },
 
+                        /**
+                         * Instantiate object of specified class
+                         * Needs to pass random length parameters (to use 'apply' method for class)
+                         *
+                         * @param {function} klass   Class
+                         * @param {object}   params  Initialization parameters
+                         * @returns {object} Instantiated object
+                         *
+                         * @this {ServiceFactory}
+                         * @private
+                         */
                         _createService: function(klass, params) {
                             var K = function() {
                                 return klass.apply(this, params);
