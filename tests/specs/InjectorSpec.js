@@ -18,7 +18,7 @@ describe('Injector', function() {
         expect(injector.remove('some_object')).toBe(injector);
         expect(injector.has('some_object')).toBe(false);
         expect(function() {
-            njector.get('some_object');
+            injector.get('some_object');
         }).toThrow();
         expect(function() {
             injector.remove('some_object');
