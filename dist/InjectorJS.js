@@ -43,6 +43,7 @@
 
     namespace('InjectorJS', function(clazz, namespace) {
 
+
         /**
          * Injector
          * Realization of DI container.
@@ -327,6 +328,7 @@
                 }
             }
         });
+
         /**
          * Parameter processor
          * Checks and convert parameter value
@@ -401,7 +403,9 @@
                 }
             }
         });
+
         namespace('Factories', function(clazz) {
+
             /**
              * Abstract object factory
              *
@@ -506,6 +510,7 @@
                     }
                 };
             });
+
             /**
              * Clazz object factory
              * Create clazz based on 'name', 'parent' and 'deps' (dependencies) parameters
@@ -577,6 +582,7 @@
                     }
                 }
             });
+
             /**
              * Object object factory
              * Just returns specified value
@@ -613,6 +619,7 @@
                     }
                 };
             });
+
             /**
              * Service object factory
              * Instantiate object based on specified class and initialization parameters
@@ -701,7 +708,9 @@
                     }
                 };
             });
+
         });
+
 
     });
 

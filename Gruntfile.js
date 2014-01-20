@@ -20,7 +20,10 @@ module.exports = function(grunt) {
                     "src/Factories/.suffix",
                     "src/.build",
                     "src/.suffix"
-                ]
+                ],
+                options: {
+                    separator: '\n\n'
+                }
             }
         },
         jasmine: {
