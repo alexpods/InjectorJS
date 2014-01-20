@@ -18,7 +18,7 @@ For installation read [related chapter](https://github.com/alexpods/InjectorJS/b
 
 ###Usage###
 
-> Online working version of fol;owing examples is available on plunker: http://plnkr.co/edit/SDXdO5. Feel free to play around with it!
+> Online working version of following examples is available on plunker: http://plnkr.co/edit/SDXdO5. Feel free to play around with it!
 
 Definition of simple objects (parameters):
 ```js
