@@ -17,8 +17,12 @@ describe('Injector', function() {
         expect(injector.get('some_object')).toBe(10);
         expect(injector.remove('some_object')).toBe(injector);
         expect(injector.has('some_object')).toBe(false);
-        expect(function() { injector.get('some_object') }).toThrow();
-        expect(function() { injector.remove('some_object') }).toThrow();
+        expect(function() {
+            njector.get('some_object');
+        }).toThrow();
+        expect(function() {
+            injector.remove('some_object');
+        }).toThrow();
     });
 
     it('should set several objects', function() {
@@ -67,7 +71,9 @@ describe('Injector', function() {
         expect(injector.getFactory(serviceFactory.getName())).toBe(serviceFactory);
         expect(injector.removeFactory(serviceFactory.getName())).toBe(injector);
         expect(injector.hasFactory(serviceFactory)).toBe(false);
-        expect(function() { injector.getFactory(serviceFactory.getName()) }).toThrow();
+        expect(function() {
+            injector.getFactory(serviceFactory.getName());
+        }).toThrow();
     });
 
     it ('should set factory as function', function() {

@@ -27,7 +27,9 @@ describe('ParameterProcessor', function() {
         expect(parameterProcessor.getProcessor('some_processor')).toBe(processor);
         expect(parameterProcessor.removeProcessor('some_processor')).toBe(parameterProcessor);
         expect(parameterProcessor.hasProcessor('some_processor')).toBe(false);
-        expect(function() { parameterProcessor.getProcessor('some_processor') }).toThrow();
+        expect(function() {
+            parameterProcessor.getProcessor('some_processor');
+        }).toThrow();
     });
 
     it('should process', function() {
